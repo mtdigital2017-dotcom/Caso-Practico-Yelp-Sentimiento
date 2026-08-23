@@ -1,4 +1,4 @@
-# notebooks/Caso_Practico_Yelp_Sentimiento_FINAL.ipynb
+# Notebooks/Caso_Practico_Yelp_Sentimiento_FINAL.ipynb
 
 Caso práctico desarrollado para el curso **Natural Language Processing**, dentro de la **Especialización en Inteligencia Artificial para Analítica de Datos**.
 
