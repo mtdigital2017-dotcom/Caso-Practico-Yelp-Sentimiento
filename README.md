@@ -1,4 +1,4 @@
-# Caso práctico: clasificación de sentimientos en reseñas de Yelp
+# Notebooks/Caso_Practico_Yelp_Sentimiento_FINAL.ipynb
 
 Caso práctico desarrollado para el curso **Natural Language Processing**, dentro de la **Especialización en Inteligencia Artificial para Analítica de Datos**.
 
@@ -53,7 +53,7 @@ La aplicación también permite identificar temas frecuentes dentro de las rese�
 
 ## Estructura
 
-- `notebooks/Caso_Practico_Yelp_Sentimiento.ipynb`: desarrollo académico completo.
+- `notebooks/Caso_Practico_Yelp_Sentimiento_FINAL.ipynb`: desarrollo académico completo.
 - `notebooks/Yelp_Modelo_Final_Aplicacion.ipynb`: aplicación y análisis masivo.
 
 ## Reproducibilidad
