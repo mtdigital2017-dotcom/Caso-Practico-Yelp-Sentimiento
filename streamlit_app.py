@@ -34,7 +34,6 @@ MODEL_ZIP_URL = (
 )
 
 CACHE_DIR = Path("/tmp/yelp_model")
-
 MODEL_DIR = CACHE_DIR / "bert_model"
 TOKENIZER_DIR = CACHE_DIR / "tokenizer"
 
@@ -92,10 +91,7 @@ def prepare_model_files():
 
         response.raise_for_status()
 
-        with open(
-            zip_path,
-            "wb"
-        ) as f:
+        with open(zip_path, "wb") as f:
 
             for chunk in response.iter_content(
                 chunk_size=1024 * 1024
@@ -334,6 +330,138 @@ def detect_theme(
 
 
 # ============================================================
+# ESTRATEGIAS DE COMUNICACIÓN
+# ============================================================
+
+STRATEGIES = {
+
+    "Comida / producto": {
+        "estrategia":
+            "Comunicación de mejora del producto y recuperación de confianza",
+        "accion":
+            "Informar acciones de control de calidad y responder casos críticos",
+        "canal":
+            "Respuestas a reseñas, redes sociales y comunicación en punto de venta",
+        "mensaje":
+            "Estamos trabajando para mejorar de manera continua la calidad de nuestros productos y tu experiencia.",
+        "indicador":
+            "% de reseñas negativas asociadas a producto"
+    },
+
+    "Servicio / atención": {
+        "estrategia":
+            "Recuperación del servicio y fortalecimiento de la atención",
+        "accion":
+            "Responder comentarios negativos y comunicar acciones de mejora en atención",
+        "canal":
+            "Yelp, redes sociales, atención directa y correo posvisita",
+        "mensaje":
+            "Tus comentarios nos ayudan a mejorar. Estamos fortaleciendo nuestros procesos de atención para ofrecerte una mejor experiencia.",
+        "indicador":
+            "% de reseñas negativas asociadas a servicio"
+    },
+
+    "Tiempo / demora": {
+        "estrategia":
+            "Gestión de expectativas y comunicación de tiempos",
+        "accion":
+            "Informar tiempos estimados y comunicar medidas para reducir esperas",
+        "canal":
+            "Punto de atención, web, redes y mensajes transaccionales",
+        "mensaje":
+            "Estamos trabajando para reducir los tiempos de espera y ofrecerte una atención más ágil.",
+        "indicador":
+            "% de reseñas negativas asociadas a demora"
+    },
+
+    "Precio / valor": {
+        "estrategia":
+            "Refuerzo de propuesta de valor",
+        "accion":
+            "Comunicar beneficios, atributos diferenciales y relación calidad-precio",
+        "canal":
+            "Redes sociales, sitio web, promociones y comunicaciones comerciales",
+        "mensaje":
+            "Queremos que cada experiencia refleje el valor, la calidad y el servicio que esperas.",
+        "indicador":
+            "% de reseñas negativas asociadas a precio/valor"
+    },
+
+    "Limpieza / instalaciones": {
+        "estrategia":
+            "Comunicación de confianza y estándares operativos",
+        "accion":
+            "Reforzar protocolos y comunicar mejoras visibles en instalaciones",
+        "canal":
+            "Punto de atención, redes y respuestas a reseñas",
+        "mensaje":
+            "La limpieza y el cuidado de nuestros espacios son parte esencial de la experiencia que queremos ofrecer.",
+        "indicador":
+            "% de reseñas negativas asociadas a instalaciones"
+    },
+
+    "Pedido / entrega": {
+        "estrategia":
+            "Comunicación de confiabilidad del proceso de pedido",
+        "accion":
+            "Informar mejoras en preparación, validación y entrega de pedidos",
+        "canal":
+            "Mensajes transaccionales, soporte y respuestas directas",
+        "mensaje":
+            "Estamos fortaleciendo nuestros procesos para que tus pedidos lleguen correctamente y a tiempo.",
+        "indicador":
+            "% de reseñas negativas asociadas a pedido/entrega"
+    }
+}
+
+
+def communication_priority(
+    negative_pct
+):
+
+    if negative_pct >= 30:
+        return "🔴 ALTA"
+
+    elif negative_pct >= 15:
+        return "🟠 MEDIA"
+
+    else:
+        return "🟢 BAJA"
+
+
+def global_diagnosis(
+    positive_pct,
+    neutral_pct,
+    negative_pct
+):
+
+    if negative_pct >= 30:
+
+        return (
+            "La proporción de sentimiento negativo es elevada. "
+            "Se recomienda priorizar acciones de recuperación, "
+            "escucha activa y comunicación correctiva."
+        )
+
+    elif negative_pct >= 15:
+
+        return (
+            "La percepción general es favorable, pero existe un "
+            "segmento relevante de experiencias negativas que "
+            "requiere seguimiento y comunicación focalizada."
+        )
+
+    else:
+
+        return (
+            "La percepción general es favorable. "
+            "La estrategia puede centrarse en fidelización, "
+            "amplificación de experiencias positivas y seguimiento "
+            "preventivo de los temas negativos."
+        )
+
+
+# ============================================================
 # ENCABEZADO
 # ============================================================
 
@@ -527,7 +655,11 @@ with tab_masivo:
                     .ne("")
                 ].copy()
 
-                if metodo == "Muestra aleatoria reproducible":
+                if (
+                    metodo
+                    ==
+                    "Muestra aleatoria reproducible"
+                ):
 
                     work = work.sample(
                         n=min(
@@ -672,9 +804,9 @@ with tab_masivo:
                     "Análisis completado."
                 )
 
-                # ------------------------------------------------
+                # =================================================
                 # DISTRIBUCIÓN
-                # ------------------------------------------------
+                # =================================================
 
                 st.header(
                     "Distribución de sentimientos"
@@ -711,9 +843,9 @@ with tab_masivo:
                     chart_df
                 )
 
-                # ------------------------------------------------
-                # NEGATIVAS
-                # ------------------------------------------------
+                # =================================================
+                # TEMAS NEGATIVOS
+                # =================================================
 
                 negativas = work[
                     work[
@@ -783,9 +915,9 @@ with tab_masivo:
                     use_container_width=True
                 )
 
-                # ------------------------------------------------
+                # =================================================
                 # ANÁLISIS EJECUTIVO
-                # ------------------------------------------------
+                # =================================================
 
                 confianza_promedio = (
                     work[
@@ -828,25 +960,249 @@ La distribución obtenida fue:
 La confianza promedio del modelo fue
 **{confianza_promedio:.2f} %**.
 
-El **{baja_confianza:.2f} %** de las predicciones
-tuvo confianza inferior al 60 % y debería
-considerarse para revisión manual.
-
-Los temas negativos se identifican mediante
-reglas de palabras clave. Su presencia indica
-asociación temática y no demuestra causalidad.
-
-> Esta aplicación pública utiliza una muestra
-> controlada por limitaciones de recursos del
-> servicio gratuito de despliegue.
+El **{baja_confianza:.2f} %**
+de las predicciones tuvo confianza
+inferior al 60 % y debería considerarse
+para revisión manual.
 """
                 )
 
-                # ------------------------------------------------
-                # DESCARGA
-                # ------------------------------------------------
+                # =================================================
+                # DIAGNÓSTICO DE COMUNICACIÓN
+                # =================================================
 
-                csv_data = (
+                st.header(
+                    "📣 Diagnóstico y estrategia de comunicación"
+                )
+
+                negative_pct = float(
+                    percentages[
+                        "NEGATIVO"
+                    ]
+                )
+
+                positive_pct = float(
+                    percentages[
+                        "POSITIVO"
+                    ]
+                )
+
+                neutral_pct = float(
+                    percentages[
+                        "NEUTRAL"
+                    ]
+                )
+
+                priority = (
+                    communication_priority(
+                        negative_pct
+                    )
+                )
+
+                diagnosis = (
+                    global_diagnosis(
+                        positive_pct,
+                        neutral_pct,
+                        negative_pct
+                    )
+                )
+
+                st.subheader(
+                    f"Prioridad general: {priority}"
+                )
+
+                st.write(
+                    diagnosis
+                )
+
+                # =================================================
+                # PLAN DE COMUNICACIÓN POR TEMA
+                # =================================================
+
+                communication_rows = []
+
+                for _, row in resumen_causas.iterrows():
+
+                    theme = row[
+                        "Tema"
+                    ]
+
+                    theme_pct = float(
+                        row[
+                            "% de negativas"
+                        ]
+                    )
+
+                    theme_count = int(
+                        row[
+                            "Reseñas"
+                        ]
+                    )
+
+                    strategy = STRATEGIES[
+                        theme
+                    ]
+
+                    if theme_count == 0:
+
+                        theme_priority = (
+                            "⚪ SIN SEÑAL"
+                        )
+
+                    elif theme_pct >= 30:
+
+                        theme_priority = (
+                            "🔴 ALTA"
+                        )
+
+                    elif theme_pct >= 15:
+
+                        theme_priority = (
+                            "🟠 MEDIA"
+                        )
+
+                    else:
+
+                        theme_priority = (
+                            "🟢 BAJA"
+                        )
+
+                    communication_rows.append({
+
+                        "Prioridad":
+                            theme_priority,
+
+                        "Tema":
+                            theme,
+
+                        "% negativas":
+                            round(
+                                theme_pct,
+                                2
+                            ),
+
+                        "Estrategia":
+                            strategy[
+                                "estrategia"
+                            ],
+
+                        "Acción recomendada":
+                            strategy[
+                                "accion"
+                            ],
+
+                        "Canal sugerido":
+                            strategy[
+                                "canal"
+                            ],
+
+                        "Mensaje sugerido":
+                            strategy[
+                                "mensaje"
+                            ],
+
+                        "Indicador":
+                            strategy[
+                                "indicador"
+                            ]
+                    })
+
+                communication_plan = (
+                    pd.DataFrame(
+                        communication_rows
+                    )
+                )
+
+                st.subheader(
+                    "Plan de comunicación recomendado"
+                )
+
+                st.dataframe(
+                    communication_plan,
+                    use_container_width=True,
+                    hide_index=True
+                )
+
+                # =================================================
+                # RECOMENDACIONES GENERALES
+                # =================================================
+
+                st.subheader(
+                    "Recomendaciones generales"
+                )
+
+                if negative_pct >= 30:
+
+                    st.markdown(
+                        """
+**Objetivo principal:** recuperación de confianza.
+
+- Priorizar respuesta a comentarios negativos.
+- Comunicar acciones correctivas concretas.
+- Dar seguimiento semanal a los temas críticos.
+- Revisar manualmente casos de baja confianza.
+"""
+                    )
+
+                elif negative_pct >= 15:
+
+                    st.markdown(
+                        """
+**Objetivo principal:** fortalecer la experiencia y reducir fricciones.
+
+- Mantener comunicación positiva con clientes satisfechos.
+- Atender de forma focalizada los principales temas negativos.
+- Comunicar mejoras implementadas.
+- Dar seguimiento a la evolución del sentimiento negativo.
+"""
+                    )
+
+                else:
+
+                    st.markdown(
+                        """
+**Objetivo principal:** fidelización y amplificación.
+
+- Amplificar experiencias positivas.
+- Promover testimonios y recomendaciones.
+- Mantener seguimiento preventivo de señales negativas.
+- Reforzar atributos bien valorados.
+"""
+                    )
+
+                # =================================================
+                # NOTA METODOLÓGICA
+                # =================================================
+
+                st.info(
+                    """
+Las estrategias de comunicación son recomendaciones
+derivadas de reglas analíticas aplicadas sobre los
+resultados agregados.
+
+BERT clasifica el sentimiento. Las estrategias no son
+predicciones del modelo y deben interpretarse como apoyo
+a la toma de decisiones.
+
+Los temas negativos se identifican mediante palabras clave;
+su presencia indica asociación temática y no demuestra
+causalidad.
+"""
+                )
+
+                # =================================================
+                # DESCARGAS
+                # =================================================
+
+                st.header(
+                    "Descargas"
+                )
+
+                col_download_1, col_download_2 = st.columns(
+                    2
+                )
+
+                predictions_csv = (
                     work.to_csv(
                         index=False
                     )
@@ -855,11 +1211,40 @@ asociación temática y no demuestra causalidad.
                     )
                 )
 
-                st.download_button(
-                    "Descargar predicciones",
-                    data=csv_data,
-                    file_name=(
-                        "analisis_sentimientos_yelp.csv"
-                    ),
-                    mime="text/csv"
+                communication_csv = (
+                    communication_plan
+                    .to_csv(
+                        index=False
+                    )
+                    .encode(
+                        "utf-8"
+                    )
+                )
+
+                with col_download_1:
+
+                    st.download_button(
+                        "Descargar predicciones",
+                        data=predictions_csv,
+                        file_name=(
+                            "analisis_sentimientos_yelp.csv"
+                        ),
+                        mime="text/csv"
+                    )
+
+                with col_download_2:
+
+                    st.download_button(
+                        "Descargar plan de comunicación",
+                        data=communication_csv,
+                        file_name=(
+                            "plan_comunicacion_yelp.csv"
+                        ),
+                        mime="text/csv"
+                    )
+
+                st.caption(
+                    "La versión pública utiliza una muestra "
+                    "controlada por limitaciones de recursos "
+                    "del servicio gratuito de despliegue."
                 )
