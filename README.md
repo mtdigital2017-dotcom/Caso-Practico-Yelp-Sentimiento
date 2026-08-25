@@ -39,9 +39,42 @@ En este split y configuración, **BERT obtuvo el mejor F1 macro**.
 
 ## Aplicación de analítica de sentimientos
 
-Como extensión práctica se desarrolló una interfaz con Gradio que permite analizar reseñas nuevas individualmente o cargar un conjunto de reseñas para obtener una visión agregada.
+Como extensión práctica se desarrolló una interfaz con Streamlit que permite analizar reseñas nuevas individualmente o cargar un conjunto de reseñas para obtener una visión agregada.
 
-En la ejecución sobre 10.000 reseñas se obtuvo:
+### Aplicación web y estrategias de comunicación
+
+Como extensión práctica del caso se desarrolló una aplicación web con Streamlit que permite utilizar el modelo BERT entrenado para analizar nuevas reseñas, tanto individualmente como de forma masiva.
+
+La aplicación utiliza exclusivamente el texto de la reseña como predictor y clasifica cada comentario en tres categorías:
+
+- NEGATIVO
+- NEUTRAL
+- POSITIVO
+
+### Funcionalidades
+
+La aplicación permite:
+
+- Clasificar una reseña individual y visualizar las probabilidades estimadas para las tres clases.
+- Cargar archivos CSV o Excel con múltiples reseñas.
+- Obtener la distribución agregada de sentimientos.
+- Identificar temas frecuentes dentro de las reseñas clasificadas como negativas.
+- Generar un análisis ejecutivo de los resultados.
+- Establecer prioridades de comunicación a partir de los resultados agregados.
+- Proponer estrategias, acciones y canales de comunicación para los principales temas negativos.
+- Descargar las predicciones obtenidas.
+
+### Aplicación pública
+
+La aplicación se encuentra desplegada en Streamlit Community Cloud:
+
+https://caso-practico-yelp-sentimiento-popb3qpztrhzsggykpkio2.streamlit.app
+
+Por restricciones de recursos del servicio gratuito de despliegue, la aplicación pública utiliza una muestra controlada para el análisis masivo. Esta limitación corresponde únicamente al despliegue y no modifica el entrenamiento, la evaluación ni los resultados académicos obtenidos sobre el conjunto de test.
+
+### Resultados del análisis masivo
+
+En la ejecución previamente realizada sobre 10.000 reseñas se obtuvo:
 
 | Sentimiento predicho | Cantidad | Porcentaje |
 |---|---:|---:|
@@ -49,7 +82,19 @@ En la ejecución sobre 10.000 reseñas se obtuvo:
 | NEUTRAL | 1.848 | 18,48 % |
 | POSITIVO | 6.444 | 64,44 % |
 
-La aplicación también permite identificar temas frecuentes dentro de las reseñas clasificadas como negativas y generar un reporte ejecutivo en Excel.
+Estos resultados corresponden al análisis masivo de nuevas reseñas y no deben confundirse con las métricas de evaluación del modelo sobre el conjunto de test.
+
+### Apoyo a estrategias de comunicación
+
+La aplicación incorpora una capa adicional de analítica para apoyar la interpretación de los resultados. El flujo implementado puede resumirse como:
+
+**Reseñas → BERT → Sentimientos → Temas negativos → Diagnóstico → Prioridades → Estrategias de comunicación → Acciones y canales**
+
+BERT se utiliza exclusivamente para la clasificación del sentimiento. Las estrategias de comunicación no son predicciones generadas por BERT, sino recomendaciones derivadas de reglas analíticas aplicadas sobre los resultados agregados.
+
+Los temas negativos se identifican mediante reglas basadas en palabras clave. Su presencia indica asociación temática y no demuestra causalidad.
+
+De esta manera, la aplicación permite transformar las predicciones de sentimiento en información de apoyo para la toma de decisiones, manteniendo separada la salida del modelo de las recomendaciones posteriores.
 
 ## Estructura
 
